@@ -1,16 +1,16 @@
 clone script จาก https://github.com/tantee/vaccine-docker หรือ download จาก https://github.com/tantee/vaccine-docker/archive/refs/heads/main.zip
 
 วิธีการติดตั้ง
-1. rename file docker-compose.env เป็น .env
+1. mv docker-compose.env .env
 2. ตั้งค่าต่างๆ ใน file .env ตามการใช้งาน
 3. run คำสั่ง docker-compose up -d
-4. run คำสั่ง docker-compose exec -T mysql mysql --user=${MYSQL_USER} --password=${MYSQL_PASSWORD} --database=${MYSQL_DATABASE} < vaccinedb.sql
+4. run คำสั่ง ./initializedb.sh เพื่อ install ข้อมูลเริ่มต้นของ database
 
 จะสามารถเข้าใช้งานได้ทาง http://localhost เพื่อทดสอบการใช้งาน โดยใช้ default admin account ดังนี้
 username : admin
 password : admin123
 
-ใน docker-compose.yml version นี้ไม่ได้ใส่ letsencrypt และ expose server ใน port 443 (https) ไว้ เมื่อนำไปใช้งานจริง จะต้องทำ deploy server ให้ https ครับ ไม่เช่นนั้นจะไม่สามารถใช้งานกล้อง หรืออุปกรณ์อื่นๆ ใน chrome ได้
+ใน docker-compose.yml version นี้ไม่ได้ใส่ letsencrypt และ expose server ใน port 443 (https) ไว้ เมื่อนำไปใช้งานจริง จะต้องทำ deploy server ให้เป็น https ไม่เช่นนั้นจะไม่สามารถใช้งานกล้อง หรืออุปกรณ์อื่นๆ ใน chrome ได้
 
 วิธีการ deploy เป็น https สามารถทำได้ 2 วิธี
 

@@ -2,16 +2,18 @@ version: '3.3'
 
 services:
   mysql:
-    image: tantee/mysql:8
+    image: mysql:8
     restart: always
     environment:
+      - TZ=Asia/Bangkok
       - MYSQL_DATABASE=${MYSQL_DATABASE}
       - MYSQL_USER=${MYSQL_USER}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
     volumes:
-      - ./data/mysql.cnf:/etc/my.cnf
       - ./data/mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-p${MYSQL_ROOT_PASSWORD}"]
 
   phpmyadmin:
     image: phpmyadmin
@@ -93,3 +95,5 @@ services:
     volumes:
       - ./data/redis:/data
     command: "redis-server --appendonly yes"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
