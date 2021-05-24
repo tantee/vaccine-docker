@@ -1,0 +1,95 @@
+version: '3.3'
+
+services:
+  mysql:
+    image: tantee/mysql:8
+    restart: always
+    environment:
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - ./data/mysql.cnf:/etc/my.cnf
+      - ./data/mysql:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin
+    environment:
+      - PMA_HOST=mysql
+    ports:
+      - 8081:80
+    depends_on:
+      - mysql
+
+  vaccine-ui:
+    image: tantee/vaccine-ui:${VACCINE_UI_VERSION}
+    restart: always
+    environment:
+      - APP_ENV=${APP_ENV}
+    volumes:
+      - ./logo/logo-with-text.svg:/app/assets/logo-with-text.svg
+      - ./logo/logo-small.png:/app/assets/logo-small.png
+
+  vaccine-ui-public:
+    image: tantee/vaccine-ui-public:${VACCINE_UI_PUBLIC_VERSION}
+    restart: always
+    environment:
+      - APP_ENV=${APP_ENV}
+    depends_on:
+      - vaccine-api
+    volumes:
+      - ./logo/logo-with-text.svg:/app/assets/logo-with-text.svg
+
+  vaccine-api:
+    image: tantee/vaccine-api:${VACCINE_API_VERSION}
+    restart: always
+    environment:
+      - APP_ENV=${APP_ENV}
+      - APP_DEBUG=${APP_DEBUG}
+      - DB_CONNECTION=mysql
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_DATABASE=${MYSQL_DATABASE}
+      - DB_USERNAME=${MYSQL_USER}
+      - DB_PASSWORD=${MYSQL_PASSWORD}
+      - MOPH_USERNAME=${MOPH_USERNAME}
+      - MOPH_PASSWORD=${MOPH_PASSWORD}
+      - HOSPITAL_CODE=${HOSPITAL_CODE}
+      - HOSPITAL_NAME=${HOSPITAL_NAME}
+    volumes:
+      - ./data/storage:/var/www/html/storage:z
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql
+      - redis
+      - gotenberg
+
+  gotenberg:
+    image: tantee/gotenberg-thai:6
+    restart: always
+    environment:
+      - DEFAULT_WAIT_TIMEOUT=60
+      - MAXIMUM_WAIT_TIMEOUT=60
+    deploy:
+      replicas: 4
+
+  nginx:
+    image: nginx:alpine
+    restart: always
+    volumes:
+      - ./proxy:/etc/nginx/conf.d
+    ports:
+      - "80:80"
+    depends_on:
+      - vaccine-api
+      - vaccine-ui
+      - vaccine-ui-public
+
+  redis:
+    image: redis:latest
+    restart: always
+    volumes:
+      - ./data/redis:/data
+    command: "redis-server --appendonly yes"
