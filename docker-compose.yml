@@ -59,6 +59,8 @@ services:
       - MOPH_PASSWORD=${MOPH_PASSWORD}
       - HOSPITAL_CODE=${HOSPITAL_CODE}
       - HOSPITAL_NAME=${HOSPITAL_NAME}
+      - FIELD_HOSPITAL_CODE=${FIELD_HOSPITAL_CODE}
+      - FIELD_HOSPITAL_NAME=${FIELD_HOSPITAL_NAME}
     volumes:
       - ./data/storage:/var/www/html/storage:z
     ports:
